@@ -6,12 +6,17 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import status, authentication, permissions
-from django.contrib.auth.models import update_last_login
+from django.contrib.auth.models import update_last_login, User
+
 from django.db.models import Sum
 from .models import Post, PostLikes, Profile
 
 from .serializers import PostSerializer, UserSerializer
 from .authentication import BearerAuthentication
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 @api_view(['POST'])
@@ -27,7 +32,7 @@ def SignUp(request):
         return redirect("login/")
 
 @api_view(['POST'])
-@authentication_classes([BearerAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def createPost(request):
     updated_data = request.data.copy()
@@ -41,7 +46,7 @@ def createPost(request):
         return Response(serializer.errors)
 
 @api_view(['POST'])
-@authentication_classes([BearerAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def likePost(request, id):
     try:
@@ -59,7 +64,7 @@ def likePost(request, id):
     return Response(context, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@authentication_classes([BearerAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def unlikePost(request, id):
     try:
@@ -71,7 +76,7 @@ def unlikePost(request, id):
     return Response(context, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@authentication_classes([BearerAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def analitics(request):
     date_from = request.GET.get('date_from','')
@@ -87,7 +92,7 @@ def analitics(request):
     return Response(context, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@authentication_classes([BearerAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def lastLogin(request):
     context = {
@@ -96,9 +101,8 @@ def lastLogin(request):
     }
     return Response(context, status=status.HTTP_200_OK)
 
-class LoginToken(ObtainAuthToken):
+class LoginToken(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         result = super().post(request, *args, **kwargs)
-        token = Token.objects.get(key=result.data['token'])
-        update_last_login(None, token.user)
+        update_last_login(None, User.objects.get(username=request.data['username']))
         return result

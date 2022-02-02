@@ -43,12 +43,6 @@ INSTALLED_APPS = [
     'social_network',
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'social_network.authentication.BearerAuthentication', 
-    ],
-}
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -133,6 +127,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'social_network.authentication.BearerAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+    ],
+}
 
 
 

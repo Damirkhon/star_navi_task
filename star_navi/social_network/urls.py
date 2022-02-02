@@ -1,6 +1,10 @@
 from social_network import views
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('register/', views.SignUp),
@@ -11,4 +15,5 @@ urlpatterns = [
     path('unlikePost/<int:id>/',views.unlikePost),
     path('analitics/', views.analitics),
     path('lastLogin/', views.lastLogin),
+    path('login/refresh/', TokenRefreshView.as_view(), name="token_refresh"),
 ]
